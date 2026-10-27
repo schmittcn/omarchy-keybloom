@@ -2,14 +2,15 @@
 
 An [Omarchy](https://omarchy.org) bar widget for the lighting of Keychron keyboards running QMK/VIA firmware.
 Let the keyboard follow your Omarchy theme, run through the rainbow, or pick the effect, color, speed and brightness
-yourself. The lights can pulse with your music, you can cycle effects with a key, and they go out while you are idle.
+yourself. The lights can pulse with your music, run through the effects by themselves (in order or at random), switch
+effects with a key, and go out while you are idle.
 
 Every change stays in the keyboard's RAM. Keybloom writes the keyboard's flash memory only when you press
 **Store on keyboard**, so playing with it does not wear the keyboard out.
 
-| Your own color, Reactive effect | Theme color, Breathing, pulsing with music |
+| Your own color, Reactive effect | Theme color, pulsing with music, random auto cycle |
 |---|---|
-| ![Keybloom with an own color and the Reactive effect](screenshots/popup-own.png) | ![Keybloom following the theme with music](screenshots/popup-theme.png) |
+| ![Keybloom with an own color and the Reactive effect](screenshots/popup-own.png) | ![Keybloom following the theme with music and random auto cycle](screenshots/popup-theme.png) |
 
 ## Quick start
 
@@ -36,6 +37,7 @@ On its first start, Keybloom takes over what the keyboard shows at that moment a
 | **Sync · Music on typing effects** | Shown while Music is on. Turn it off and music leaves the typing effects alone: your keys light up in exactly the theme's (or your) color. |
 | **Sync · Off when idle** | Turns the lights off after a time without input and back on with your first key. The slider has fixed steps: Never, 10, 15, 30, 45 s, 1, 2, 3, 5, 10, 15, 30, 45 min, 1 h (default 2 min). It counts only your input: apps that keep the screen awake (a playing video, a game, a browser tab, Omarchy's Stay Awake) do not keep the keyboard lit. With Music on, the lights stay on while something plays. |
 | **Effect** | Pick an effect from the list, or step through them with ◀ ▶ (or ← → in the open popup). The effects marked ⌨ react to typing; the keyboard does that by itself. |
+| **Effect · Auto cycle** | **In order** steps through the effects one after another, **Random** picks a different one each time; **Every** sets how often (5 s to 30 min). The list and the status line follow along. The typing effects (⌨) are left out, as they stay dark until you type. Picking an effect yourself makes it the saved one and starts the wait anew; the automatic steps are not saved. Cycling pauses while the lights are off for idle. |
 | **Speed / Brightness** | The keyboard follows the slider while you drag. Speed also sets how fast Rainbow runs. |
 | **Color · Theme** | The theme's keyboard color (`keyboard.rgb`), updated on every theme switch. Only the color changes; the effect stays yours. |
 | **Color · Rainbow** | The color runs through all hues. Combine it with Solid color, Breathing or a Reactive effect; with effects that bring their own colors it pauses. |
@@ -73,6 +75,8 @@ omarchy bar set io.github.schmittcn.keybloom music false
 | `colorMode` | `theme`, `rainbow` or `own` |
 | `music`, `musicTyping` | `true` or `false` |
 | `idleSec` | seconds until the lights go out when idle, 0 to 3600; 0 means never |
+| `cycle` | auto cycle: `off`, `order` or `random` |
+| `cycleSec` | seconds between auto-cycle steps, 5 to 3600 |
 | `storedOnKeyboard` | written by **Store on keyboard**: what the keyboard's memory holds |
 | `boards` | your own keyboards' effect lists, see [Adding your keyboard](#adding-your-keyboard) |
 
@@ -102,9 +106,9 @@ bindd = SUPER ALT, bracketleft, Previous keyboard effect, exec, omarchy-shell io
 A keyboard keeps its settings in flash memory, and flash survives only a limited number of writes. Keybloom keeps that
 number at what you choose:
 
-- Effect, color, speed, brightness, theme color, idle, Rainbow and Music use VIA's *set value* command (Rainbow and
-  Music about 30 times a second while on). In QMK this calls the
-  `*_noeeprom` functions: the keyboard changes the lighting in RAM and writes nothing.
+- Effect, color, speed, brightness, theme color, idle, auto cycle, Rainbow and Music use VIA's *set value* command
+  (Rainbow and Music about 30 times a second while on). In QMK this calls the `*_noeeprom` functions: the keyboard
+  changes the lighting in RAM and writes nothing.
 - The only command that writes flash is VIA's *save* (`eeconfig_update_rgb_matrix()` in QMK). Keybloom sends it only
   when you press **Store on keyboard**, and not again until something has changed. It stores your still settings,
   not a rainbow or music frame.

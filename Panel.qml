@@ -45,13 +45,15 @@ Panel {
     : status.error ? status.error
     : status.idle && st.idleSec > 0 && !st.music ? "Idle · lights off"
     : [effectName, usesColor && st.colorMode === "theme" ? "theme color" : usesColor && st.colorMode === "rainbow" ? "rainbow" : "",
-       st.music ? "music" : ""].filter(function(s) { return s !== "" }).join(" · ")
+       st.music ? "music" : "", st.cycle === "order" ? "cycling" : st.cycle === "random" ? "random" : ""]
+      .filter(function(s) { return s !== "" }).join(" · ")
 
   function send(cmd) { if (helper.running) helper.write(JSON.stringify(cmd) + "\n") }
 
   // ---------- Settings: inline on Keybloom's shell.json entry ----------
   readonly property var settingKeys: ["effect", "speed", "brightness", "hue", "sat", "colorMode", "music",
-    "musicTyping", "idleSec", "storedOnKeyboard", "boards"]
+    "musicTyping", "idleSec", "cycle", "cycleSec", "storedOnKeyboard", "boards"]
+  function durationLabel(sec) { return sec < 60 ? sec + " s" : sec < 3600 ? sec / 60 + " min" : "1 h" }
   property string persistedCanon: ""   // the settings as shell.json holds them, canonical JSON
 
   function pick(entry) {
@@ -302,7 +304,7 @@ Panel {
             id: idleBox
             readonly property var stops: [0, 10, 15, 30, 45, 60, 120, 180, 300, 600, 900, 1800, 2700, 3600]
             function label(sec) {
-              return sec === 0 ? "Never" : sec < 60 ? sec + " s" : sec < 3600 ? sec / 60 + " min" : "1 h"
+              return sec === 0 ? "Never" : root.durationLabel(sec)
             }
             function nearest(sec) {   // a value from an older version may sit between stops
               var best = 0
@@ -430,12 +432,51 @@ Panel {
             width: parent.width
             textFormat: Text.PlainText
             text: (root.status.effectsNote ? root.status.effectsNote + ". " : "")
-              + (root.status.model ? "" : "Effect names for this keyboard are not known yet; you can add them in ~/.config/keybloom/effects.json (see the README).")
+              + (root.status.model ? "" : "Effect names for this keyboard are not known yet; you can add them in Keybloom's boards setting (see the README).")
             color: root.fg
             opacity: 0.6
             font.family: root.fontName
             font.pixelSize: Style.font.caption
             wrapMode: Text.Wrap
+          }
+
+          // auto cycle through the effects; typing effects are left out (dark until you type)
+          Item {
+            width: parent.width
+            implicitHeight: cycleGroup.implicitHeight
+            Text {
+              id: cycleLabel
+              anchors.left: parent.left
+              anchors.verticalCenter: parent.verticalCenter
+              width: Style.space(80)
+              text: "Auto cycle"
+              color: root.fg
+              opacity: 0.7
+              font.family: root.fontName
+              font.pixelSize: Style.font.caption
+            }
+            ButtonGroup {
+              id: cycleGroup
+              anchors.left: cycleLabel.right
+              anchors.verticalCenter: parent.verticalCenter
+              options: [
+                { value: "off", label: "Off" },
+                { value: "order", label: "In order", tooltip: "One effect after another (typing effects left out)" },
+                { value: "random", label: "Random", tooltip: "A random effect each time (typing effects left out)" }
+              ]
+              value: root.st.cycle || "off"
+              foreground: root.fg
+              fontFamily: root.fontName
+              fontSize: Style.font.bodySmall
+              onChanged: function(v) { root.set({ cycle: v }) }
+            }
+          }
+          StepSlider {
+            visible: !!root.st.cycle && root.st.cycle !== "off"
+            label: "Every"
+            stops: [5, 10, 15, 30, 45, 60, 120, 300, 600, 900, 1800]
+            value: root.st.cycleSec || 30
+            onCommit: function(v) { root.set({ cycleSec: v }) }
           }
 
           LabeledSlider {
@@ -630,6 +671,60 @@ Panel {
       width: Style.space(28)
       horizontalAlignment: Text.AlignRight
       text: Math.round(slider.liveValue)
+      color: root.fg
+      font.family: root.fontName
+      font.pixelSize: Style.font.caption
+    }
+  }
+
+  // A slider over fixed stops (seconds), equally spaced so short times are as easy to hit as long ones.
+  component StepSlider: Item {
+    id: ss
+    property string label: ""
+    property var stops: []
+    property int value: 0
+    signal commit(int v)
+    function nearest(sec) {   // a value set by hand may sit between stops
+      var best = 0
+      for (var i = 0; i < stops.length; i++) if (Math.abs(stops[i] - sec) < Math.abs(stops[best] - sec)) best = i
+      return best
+    }
+    width: parent.width
+    implicitHeight: Math.max(ssLabel.implicitHeight, ssSlider.implicitHeight)
+
+    Text {
+      id: ssLabel
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      width: Style.space(80)
+      text: ss.label
+      color: root.fg
+      opacity: 0.7
+      font.family: root.fontName
+      font.pixelSize: Style.font.caption
+    }
+    PanelSlider {
+      id: ssSlider
+      bar: root.bar
+      anchors.left: ssLabel.right
+      anchors.right: ssValue.left
+      anchors.rightMargin: Style.space(8)
+      anchors.verticalCenter: parent.verticalCenter
+      minimum: 0
+      maximum: Math.max(1, ss.stops.length - 1)
+      step: 1
+      integer: true
+      tickCount: ss.stops.length
+      value: ss.nearest(ss.value)
+      onReleased: function(v) { ss.commit(ss.stops[Math.round(v)]) }
+    }
+    Text {
+      id: ssValue
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: Style.space(44)
+      horizontalAlignment: Text.AlignRight
+      text: root.durationLabel(ss.stops[Math.round(ssSlider.liveValue)] || 0)
       color: root.fg
       font.family: root.fontName
       font.pixelSize: Style.font.caption

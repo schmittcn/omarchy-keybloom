@@ -9,7 +9,8 @@ after the first command, init:
                                your settings and keyboards from Keybloom's shell.json entry (again whenever
                                that entry changes); an empty entry: take over what the keyboard shows
   {"set": {"effect": 4, "speed": 128, "brightness": 255, "hue": 25, "sat": 240,
-           "colorMode": "own"|"theme"|"rainbow", "music": false, "musicTyping": true, "idleSec": 120}}
+           "colorMode": "own"|"theme"|"rainbow", "music": false, "musicTyping": true, "idleSec": 120,
+           "cycle": "off"|"order"|"random", "cycleSec": 30}}
                                any subset; picking a hue switches colorMode to "own"
   {"step": 1} / {"step": -1}   next / previous effect (skips "off")
   {"theme": true}              the Omarchy theme changed: re-read keyboard.rgb if colorMode is "theme"
@@ -35,6 +36,7 @@ import glob
 import json
 import os
 import pwd
+import random
 import re
 import select
 import stat
@@ -60,6 +62,7 @@ COLOR_KEYS = {"solid_color", "alphas_mods", "breathing", "band_sat", "band_val",
               "solid_reactive_multicross", "solid_reactive_nexus", "solid_reactive_multinexus", "solid_splash",
               "solid_multisplash"}
 COLOR_MODES = ("own", "theme", "rainbow")
+CYCLE_MODES = ("off", "order", "random")  # auto cycle through the effects: no, one after another, at random
 FRAME = 1 / 30  # rainbow/music update interval, seconds
 
 CMD_PROTOCOL = 0x01
@@ -88,7 +91,8 @@ CHANNEL_RGB_MATRIX = 0x03
 VAL_BRIGHTNESS, VAL_EFFECT, VAL_SPEED, VAL_COLOR = 0x01, 0x02, 0x03, 0x04
 LIGHT_KEYS = ("effect", "speed", "brightness", "hue", "sat")
 DEFAULT_STATE = {"effect": 1, "speed": 128, "brightness": 255, "hue": 0, "sat": 255,
-                 "colorMode": "theme", "music": False, "musicTyping": True, "idleSec": 120, "stored": None}
+                 "colorMode": "theme", "music": False, "musicTyping": True, "idleSec": 120,
+                 "cycle": "off", "cycleSec": 30, "stored": None}
 
 
 def parse_settings(data, base=None):
@@ -111,6 +115,10 @@ def parse_settings(data, base=None):
         state["idleSec"], found = data["idleSec"], True
     if data.get("colorMode") in COLOR_MODES:
         state["colorMode"], found = data["colorMode"], True
+    if data.get("cycle") in CYCLE_MODES:
+        state["cycle"], found = data["cycle"], True
+    if cycle_seconds(data.get("cycleSec")) is not None:
+        state["cycleSec"], found = data["cycleSec"], True
     stored = data.get("storedOnKeyboard")
     if isinstance(stored, dict) and all(byte(stored.get(k)) is not None for k in LIGHT_KEYS):
         state["stored"] = {k: stored[k] for k in LIGHT_KEYS}
@@ -132,6 +140,11 @@ def read_json(path):
 def idle_seconds(v):
     """Seconds until the lights go out when idle (0 = never), 0..3600, from untrusted JSON; or None."""
     return v if isinstance(v, int) and not isinstance(v, bool) and 0 <= v <= 3600 else None
+
+
+def cycle_seconds(v):
+    """Seconds between auto-cycle steps, 5..3600, from untrusted JSON; or None."""
+    return v if isinstance(v, int) and not isinstance(v, bool) and 5 <= v <= 3600 else None
 
 
 def byte(v):
@@ -452,6 +465,8 @@ class Helper:
         self.user_boards = {}
         self.saved = {}      # the settings as they should stand in shell.json
         self.count = 0       # effects the connected keyboard has (0: not known yet)
+        self.chosen = None   # the effect you picked; auto cycle shows others but saves this one
+        self.next_cycle = None  # when auto cycle takes its next step (monotonic seconds)
         self.kb = Keyboard()
         self.music = Music()
         self.have = {}   # what the keyboard shows now (RAM), as far as we know
@@ -467,7 +482,10 @@ class Helper:
     def persisted(self):
         """What goes into the shell.json entry. In Theme mode the color comes from the theme: not stored, so a
         theme switch does not rewrite shell.json."""
-        s = {k: self.state[k] for k in ("effect", "speed", "brightness", "colorMode", "music", "musicTyping", "idleSec")}
+        s = {k: self.state[k] for k in ("effect", "speed", "brightness", "colorMode", "music", "musicTyping",
+                                        "idleSec", "cycle", "cycleSec")}
+        if self.chosen is not None:
+            s["effect"] = self.chosen  # an auto-cycle step is not a change of yours: shell.json keeps your pick
         if self.state["colorMode"] != "theme":
             s["hue"], s["sat"] = self.state["hue"], self.state["sat"]
         if self.state["stored"]:
@@ -487,6 +505,7 @@ class Helper:
         elif first:
             self.adopt = True
         self.user_boards = parse_boards(data.get("boards"))
+        self.chosen, self.next_cycle = self.state["effect"], None
         if self.count:  # already connected: the effect names may have changed with your boards
             self.effects, self.typing_effects, self.color_effects, self.model, self.effects_note = \
                 effect_list(self.kb.pid, self.count, self.user_boards)
@@ -587,6 +606,7 @@ class Helper:
             self.state.update(self.have)
             self.state["colorMode"] = "own"
             self.adopt = False
+        self.chosen = self.state["effect"]
         self.apply_theme()
         self.saved = self.persisted()
 
@@ -596,15 +616,20 @@ class Helper:
             self.init(cmd["init"])
         if not self.ready:
             return  # nothing touches the keyboard before init
+        picked = False  # you chose an effect: it becomes the saved one, and auto cycle starts its wait anew
         if isinstance(cmd.get("set"), dict):
             new = cmd["set"]
             for k in LIGHT_KEYS:
                 v = byte(new.get(k))
                 if v is not None:
                     if k == "effect":
-                        v = min(v, len(self.effects) - 1)
+                        v, picked = min(v, len(self.effects) - 1), True
                     self.state[k] = v
                     changed = True
+            if new.get("cycle") in CYCLE_MODES:
+                self.state["cycle"], self.next_cycle, changed = new["cycle"], None, True
+            if cycle_seconds(new.get("cycleSec")) is not None:
+                self.state["cycleSec"], self.next_cycle, changed = new["cycleSec"], None, True
             if "hue" in new:
                 self.state["colorMode"] = "own"  # you picked a color: neither theme nor rainbow decides
             if new.get("colorMode") in COLOR_MODES:
@@ -621,7 +646,7 @@ class Helper:
         if cmd.get("step") in (1, -1) and len(self.effects) > 1:
             n = len(self.effects) - 1  # effects 1..n, 0 (off) is skipped
             self.state["effect"] = (self.state["effect"] - 1 + cmd["step"]) % n + 1
-            changed = True
+            changed = picked = True
         if cmd.get("theme") is True:
             self.apply_theme()
             changed = True
@@ -631,12 +656,15 @@ class Helper:
             try:
                 self.have = self.kb.read()
                 if any(self.have[k] != self.state[k] for k in LIGHT_KEYS):
+                    picked = self.have["effect"] != self.state["effect"]
                     self.state.update(self.have)  # changed with the Fn keys: take it over
                     changed = True
             except OSError:
                 self.kb.close()
             except Unsupported:
                 self.block(NO_RGB)
+        if picked:
+            self.chosen, self.next_cycle = self.state["effect"], None
         self.sync()
         if cmd.get("store") is True and self.kb.fd is not None and not self.blocked:
             if self.lights() != self.state["stored"] and not self.idle:
@@ -650,6 +678,37 @@ class Helper:
                     self.error = f"Store failed: {e}"
         if changed and cmd.get("preview") is not True:  # slider drags preview without rewriting shell.json
             self.saved = self.persisted()
+
+    def cycle_tick(self, now):
+        """Auto cycle: take the next step when it is due. True when the effect changed (the popup should hear).
+        Typing effects are left out (they stay dark until you type), unless they are all Keybloom knows of."""
+        if self.state["cycle"] == "off" or self.kb.fd is None or self.blocked or not self.ready or self.idle:
+            self.next_cycle = None
+            return False
+        if self.next_cycle is None:
+            self.next_cycle = now + self.state["cycleSec"]
+            return False
+        if now < self.next_cycle:
+            return False
+        self.next_cycle = now + self.state["cycleSec"]
+        pool = [i for i in range(1, len(self.effects)) if i not in self.typing_effects] or list(range(1, len(self.effects)))
+        current = self.state["effect"]
+        if self.state["cycle"] == "random":
+            others = [i for i in pool if i != current]
+            effect = random.choice(others or pool)
+        else:
+            effect = next((i for i in pool if i > current), pool[0])  # the next one up, round and round
+        if effect == current:
+            return False
+        self.state["effect"] = effect
+        self.sync()
+        return True
+
+    def wait(self, now):
+        """How long the main loop may sleep: a frame while animating, else until the next cycle step (max 2 s)."""
+        if self.animated():
+            return FRAME
+        return 2.0 if self.next_cycle is None else max(0.0, min(2.0, self.next_cycle - now))
 
     def status(self):
         return {"connected": self.kb.fd is not None, "device": self.kb.dev, "error": self.error or self.music.error,
@@ -669,7 +728,7 @@ def serve():
             # the keyboard's fd is watched too: an unplug wakes us at once, so a replugged keyboard gets your
             # settings back even when nothing animates
             fds = [sys.stdin] + [fd for fd in (helper.music.fd, helper.kb.fd) if fd is not None]
-            ready, _, _ = select.select(fds, [], [], FRAME if helper.animated() else 2.0)
+            ready, _, _ = select.select(fds, [], [], helper.wait(time.monotonic()))
             if helper.music.proc and helper.music.fd in ready:
                 helper.music.feed()
             was = helper.kb.fd is not None
@@ -679,6 +738,8 @@ def serve():
                 except OSError:
                     helper.kb.close()
                     helper.have = {}
+            if helper.cycle_tick(time.monotonic()):
+                print(json.dumps(helper.status()), flush=True)
             if sys.stdin not in ready:
                 if not helper.ready:
                     continue

@@ -218,6 +218,36 @@ assert model == "My board" and note == ""
 assert "Your boards setting lists 3" in kg.effect_list("ffff", 9, mine)[4]
 assert kg.parse_boards([1]) == {} and kg.parse_boards("x") == {} and kg.effect_list("0102", 23, {})[3] == "Q1V1 ISO"
 
+# auto cycle: in order or at random, typing effects left out, steps not saved, your pick restarts the wait
+with tempfile.TemporaryDirectory() as tmp:
+    h = helper(tmp, {"settings": {"effect": 1, "cycle": "order", "cycleSec": 10}})
+    assert h.state["cycle"] == "order" and h.saved["cycle"] == "order" and h.saved["cycleSec"] == 10
+    assert not h.cycle_tick(100.0) and h.next_cycle == 110.0, "first tick only starts the wait"
+    assert not h.cycle_tick(109.9) and h.wait(109.0) == 1.0 and h.wait(100.0) == 2.0, "sleeps until the step is due (max 2 s)"
+    seen = []
+    for t in range(110, 400, 10):
+        assert h.cycle_tick(float(t)); seen.append(h.kb.ram["effect"])
+    typing = set(h.typing_effects)
+    assert seen[:3] == [2, 3, 4] and not typing & set(seen) and set(seen) == set(range(1, 23)) - typing, seen
+    assert h.saved["effect"] == 1 and h.state["effect"] == seen[-1], "steps show on the keyboard, shell.json keeps your pick"
+    h.handle({"set": {"effect": 5}})
+    assert h.saved["effect"] == 5 and h.next_cycle is None, "your pick is saved and restarts the wait"
+    h.handle({"set": {"cycle": "random"}})
+    h.cycle_tick(1000.0)
+    picks = []
+    for t in range(1, 60):
+        before = h.state["effect"]
+        assert h.cycle_tick(1000.0 + 10 * t) and h.state["effect"] != before and h.state["effect"] not in typing
+        picks.append(h.state["effect"])
+    assert len(set(picks)) > 5, "random really varies"
+    h.idle = True
+    assert not h.cycle_tick(5000.0) and h.next_cycle is None, "no cycling while the lights are off for idle"
+    h.idle = False
+    h.handle({"set": {"cycle": "sideways", "cycleSec": 2}}); h.handle({"set": {"cycleSec": 4000}})
+    assert h.state["cycle"] == "random" and h.state["cycleSec"] == 10, "bad cycle values ignored"
+    h.handle({"set": {"cycle": "off"}})
+    assert not h.cycle_tick(9000.0) and not h.cycle_tick(9999.0) and h.wait(9999.0) == 2.0
+
 # edited by hand: `omarchy bar set ... speed 200` stores "200"; a value that makes no sense keeps the current one
 with tempfile.TemporaryDirectory() as tmp:
     h = helper(tmp, {"settings": {"effect": 5, "speed": 113, "music": False}})
