@@ -1,4 +1,5 @@
 import QtQuick
+import QtQml.Models
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -130,11 +131,19 @@ Panel {
     function onAccentChanged() { root.send({ theme: true }) }
   }
 
-  IdleMonitor {
-    enabled: root.st.idleSec > 0
-    timeout: Math.max(5, root.st.idleSec || 0)
-    respectInhibitors: true
-    onIsIdleChanged: root.send({ idle: isIdle })
+  // One IdleMonitor per idle time, created with its timeout: a monitor that is switched on or given a new
+  // timeout after it exists never reports idle (seen on Quickshell here), so a new idle time makes a new one.
+  Instantiator {
+    model: root.st.idleSec > 0 ? [Math.max(5, root.st.idleSec)] : []
+    delegate: IdleMonitor {
+      required property var modelData
+      timeout: modelData
+      // idle inhibitors (a playing video, a game, a browser tab) keep the *screen* on; a keyboard you do not
+      // touch may still go dark, and the first key brings it back
+      respectInhibitors: false
+      onIsIdleChanged: root.send({ idle: isIdle })
+      Component.onDestruction: if (isIdle) root.send({ idle: false })
+    }
   }
 
   IpcHandler {
