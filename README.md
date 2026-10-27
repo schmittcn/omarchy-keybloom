@@ -267,11 +267,20 @@ idle through Quickshell's `IdleMonitor`.
 
 ## Development
 
-The shell loads plugins only from real folders under `~/.config/omarchy/plugins/` (a symlink is skipped). Work in
-this folder and copy it over after each change; the shell reloads by itself:
+The shell loads plugins only from real folders under `~/.config/omarchy/plugins/` (a symlink is skipped). With
+Keybloom installed from GitHub (`omarchy plugin add`), work in your own checkout and copy it over the installed one
+after each change; the shell reloads by itself (changes to `Panel.qml` sometimes need `omarchy restart shell`):
 
 ```
-rsync -a --delete --exclude screenshots --exclude __pycache__ ./ ~/.config/omarchy/plugins/io.github.schmittcn.keybloom/
+rsync -a --delete --exclude .git --exclude screenshots --exclude __pycache__ ./ ~/.config/omarchy/plugins/io.github.schmittcn.keybloom/
+```
+
+`--exclude .git` keeps the installed copy's own git checkout (rsync does not delete excluded files), so
+`omarchy plugin update` keeps working. A test copy leaves that checkout with local changes; to go back to the
+published version (and before `omarchy plugin update`):
+
+```
+git -C ~/.config/omarchy/plugins/io.github.schmittcn.keybloom checkout -- .
 ```
 
 Test the helper's logic (no keyboard needed): `python3 -I test_keybloom.py`. Check the manifest:
