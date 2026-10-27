@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.schmittcn.keybloom",
+  "name": "Keybloom",
+  "version": "0.1.0",
+  "author": "schmittcn",
+  "license": "MIT",
+  "description": "Your Keychron's lighting from the bar: follow the Omarchy theme, run a rainbow, pulse with your music, or pick effect, color, speed and brightness yourself; cycle effects with a key and go dark when idle. Changes stay in the keyboard's RAM, so its flash is only written when you ask.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Keybloom",
+    "description": "Keychron lighting: theme sync, effects, colors, music, idle off.",
+    "category": "Hardware",
+    "aliases": [
+      "keychron",
+      "keyboard",
+      "rgb"
+    ],
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
