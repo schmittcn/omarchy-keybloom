@@ -77,10 +77,13 @@ with tempfile.TemporaryDirectory() as tmp:
     h.handle({"set": {"hue": 100}}); assert h.state["colorMode"] == "own", "picking a color leaves rainbow"
     h.handle({"set": {"colorMode": "bogus"}}); assert h.state["colorMode"] == "own"
 
-    h.music.proc, h.music.level = object(), 0.0  # fake capture: silence
-    assert h.look(100)["brightness"] < 30, "music: quiet = dim"
+    h.music.proc, h.music.level, h.music.sound_at = object(), 0.0, 0.0  # fake capture: nothing played yet
+    assert h.look(100)["brightness"] == 200, "music on, nothing playing: your brightness exactly"
+    h.music.sound_at = 99.5
+    assert h.look(100)["brightness"] == 60, "music: quiet part = 30% of your brightness, not darker"
     h.music.level = 1.0
     assert h.look(100)["brightness"] == 200, "music: loud = your brightness"
+    assert h.look(102)["brightness"] == 200, "2 s of silence: back to your brightness"
     h.idle, h.music.sound_at = True, 98
     assert h.look(100)["brightness"] == 200, "music playing keeps the lights on while idle"
     assert h.look(110)["brightness"] == 0, "silence + idle = off"
@@ -91,6 +94,7 @@ with tempfile.TemporaryDirectory() as tmp:
     assert h.look(110)["brightness"] == 0
     h.idle = False
     h.state["effect"] = 18  # Reactive: a typing effect
+    h.music.sound_at = 99.5
     h.music.level = 0.0; quiet = h.look(100)
     h.music.level = 1.0; loud = h.look(100)
     assert quiet["brightness"] == loud["brightness"] == 200 and quiet["hue"] != loud["hue"], "typing effects: music shifts color, never dims"

@@ -390,7 +390,7 @@ class Music:
         self.proc = None
         self.rest = b""
         self.level = 0.0
-        self.peak = 1500.0   # auto gain: follows the loudest recent part, so quiet and loud music both pulse
+        self.peak = 500.0    # auto gain: follows the loudest recent part, so quiet and loud music both pulse
         self.sound_at = 0.0  # last time something was playing
         self.error = ""
 
@@ -439,7 +439,7 @@ class Music:
         if rms > 200:
             self.sound_at = time.monotonic()
         # ponytail: plain RMS with fast attack / slow release; add beat detection if a pulse feels too smooth
-        self.peak = max(rms, self.peak * 0.995, 1500.0)
+        self.peak = max(rms, self.peak * 0.995, 500.0)
         level = min(1.0, rms / self.peak)
         self.level = level if level > self.level else self.level * 0.85
 
@@ -506,13 +506,16 @@ class Helper:
         if self.state["colorMode"] == "rainbow":
             period = 30 - self.state["speed"] / 255 * 27  # Speed slider: one round in 30 s .. 3 s
             look["hue"] = int(now / period % 1 * 256) % 256
-        if self.music.proc and look["effect"] in self.typing_effects:
+        # music shapes the light only while something plays: after 2 s of silence your brightness is exactly as set
+        beat = self.music.proc is not None and now - self.music.sound_at < 2
+        if beat and look["effect"] in self.typing_effects:
             # dimming would dim the key flashes too: shift the color with the beat instead (up to a third of the
             # wheel), or leave typing effects alone when musicTyping is off
             if self.state["musicTyping"]:
                 look["hue"] = (look["hue"] + int(self.music.level * 85)) % 256
-        elif self.music.proc:
-            look["brightness"] = int(look["brightness"] * (0.08 + 0.92 * self.music.level))
+        elif beat:
+            # the Brightness slider is the peak; quiet parts dip to 30% of it, never darker
+            look["brightness"] = int(look["brightness"] * (0.3 + 0.7 * self.music.level))
         playing = self.music.proc is not None and now - self.music.sound_at < 5
         if self.idle and self.state["idleSec"] > 0 and not playing:  # music keeps the lights on while it plays
             look["brightness"] = 0

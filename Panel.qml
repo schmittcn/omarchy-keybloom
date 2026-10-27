@@ -269,7 +269,7 @@ Panel {
           Toggle {
             width: parent.width
             label: "Music"
-            description: root.typingEffects.indexOf(root.st.effect) < 0 ? "Brightness follows what your speakers play"
+            description: root.typingEffects.indexOf(root.st.effect) < 0 ? "While something plays, the lights pulse up to your brightness; otherwise they stay as set"
               : root.st.musicTyping !== false ? "The key color shifts with what your speakers play (typing effects keep full brightness)"
               : "Pulses the other effects; this typing effect ignores the music (see below)"
             checked: !!root.st.music
