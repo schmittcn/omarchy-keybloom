@@ -262,4 +262,115 @@ with tempfile.TemporaryDirectory() as tmp:
     h.handle({"init": {"settings": h.saved, "boards": {"0102": {"model": "Renamed", "effects": ["x"] * 22}}}})
     assert h.status()["model"] == "Renamed" and h.effects[1] == "x"
 
+# every bar hands shell.json's settings over again after each write: the same settings change nothing,
+# so auto cycle keeps the effect it shows and its wait
+with tempfile.TemporaryDirectory() as tmp:
+    h = helper(tmp, {"settings": {"effect": 1, "cycle": "order", "cycleSec": 10}})
+    h.cycle_tick(100.0); h.cycle_tick(110.0)
+    assert h.state["effect"] == 2 and h.saved["effect"] == 1
+    h.handle({"init": {"settings": json.loads(json.dumps(h.saved))}})
+    assert h.state["effect"] == 2 and h.kb.ram["effect"] == 2 and h.next_cycle == 120.0, "same settings: no reset"
+    h.handle({"init": {"settings": dict(h.saved, speed=50)}})
+    assert h.state["speed"] == 50 and h.state["effect"] == 1, "changed settings still apply"
+
+# xfer: hidraw gives every open handle every reply; only the one echoing our request is ours
+import socket
+import threading
+
+
+def answer(kb_end, replies):
+    """The keyboard's side: read one request, then send `replies` (each a function of the request)."""
+    req = kb_end.recv(64)[1:]
+    for r in replies:
+        kb_end.send(bytes(r(req)).ljust(32, b"\0"))
+
+
+ours, theirs = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+kb = kg.Keyboard()
+kb.fd = ours.fileno()
+crossed = lambda req: [kg.CMD_GET, kg.CHANNEL_RGB_MATRIX, kg.VAL_EFFECT, 199, 0]  # another helper's get
+right = lambda req: list(req[:3]) + [42, 7]
+t = threading.Thread(target=answer, args=(theirs, [crossed, right])); t.start()
+assert kb.get(kg.VAL_BRIGHTNESS) == bytes([42, 7]), "a reply to someone else's get is not ours"
+t.join()
+t = threading.Thread(target=answer, args=(theirs, [lambda req: [kg.CMD_SET, kg.CHANNEL_RGB_MATRIX, kg.VAL_SPEED, 1],
+                                                    lambda req: list(req[:4])]))
+t.start()
+assert kb.xfer([kg.CMD_SET, kg.CHANNEL_RGB_MATRIX, kg.VAL_EFFECT, 5])[:4] == bytes([7, 3, 2, 5])
+t.join()
+t = threading.Thread(target=answer, args=(theirs, [lambda req: [kg.CMD_PROTOCOL, 0, 12]])); t.start()
+assert kb.xfer([kg.CMD_PROTOCOL])[2] == 12, "the protocol reply echoes only the command id"
+t.join()
+kb.fd = None
+ours.close(); theirs.close()
+
+# one helper per bar (one bar per monitor): one leads and drives the keyboard, the others follow it, and a
+# follower takes the lead when the leader's bar goes away
+import select
+import subprocess
+import sys
+import time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+NO_KEYBOARD = ("import importlib.util, sys; spec = importlib.util.spec_from_file_location('kb', sys.argv[1]); "
+               "kb = importlib.util.module_from_spec(spec); spec.loader.exec_module(kb); "
+               "kb.Keyboard.connect = lambda self: setattr(self, 'why', kb.NOT_FOUND) or False; kb.serve()")
+
+
+def start(run):
+    p = subprocess.Popen([sys.executable, "-I", "-c", NO_KEYBOARD, os.path.join(HERE, "keybloom.py")],
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, env=dict(os.environ, XDG_RUNTIME_DIR=run))
+    p.buf = b""
+    return p
+
+
+def tell(p, cmd):
+    p.stdin.write((json.dumps(cmd) + "\n").encode()); p.stdin.flush()
+
+
+def hear(p, want, timeout=5.0):
+    """Status lines from `p` until one passes `want`."""
+    deadline = time.monotonic() + timeout
+    while True:
+        while b"\n" in p.buf:
+            line, p.buf = p.buf.split(b"\n", 1)
+            st = json.loads(line)
+            if want(st):
+                return st
+        left = deadline - time.monotonic()
+        assert left > 0 and select.select([p.stdout], [], [], left)[0], "no such status"
+        chunk = os.read(p.stdout.fileno(), 65536)  # not readline: what it buffers, select would not see
+        assert chunk, "helper exited"
+        p.buf += chunk
+
+
+with tempfile.TemporaryDirectory() as run:
+    os.chmod(run, 0o700)
+    bars = [start(run) for _ in range(3)]
+    try:
+        for p in bars:
+            time.sleep(0.2)
+            tell(p, {"init": {"settings": {"speed": 100, "idleSec": 60}}})
+            hear(p, lambda st: st["state"]["speed"] == 100)
+        tell(bars[2], {"set": {"speed": 77}})
+        for p in bars:
+            hear(p, lambda st: st["state"]["speed"] == 77 and st["settings"]["speed"] == 77)  # every bar hears it
+        tell(bars[1], {"set": {"idleSec": 30}})
+        for p in bars:
+            hear(p, lambda st: st["state"]["idleSec"] == 30 and st["state"]["speed"] == 77)  # one state, not three
+        tell(bars[2], {"init": {"settings": {"speed": 77, "idleSec": 30}}})  # bar 3 rereads shell.json
+        bars[0].stdin.close()  # the leader's bar goes away (monitor unplugged)
+        bars[0].wait(5)
+        time.sleep(0.5)
+        tell(bars[1], {"set": {"speed": 12}})
+        for p in bars[1:]:
+            hear(p, lambda st: st["state"]["speed"] == 12 and st["state"]["idleSec"] == 30)  # a follower took the lead
+        assert all(p.poll() is None for p in bars[1:])
+    finally:
+        for p in bars:
+            if p.stdin and not p.stdin.closed:
+                p.stdin.close()
+        for p in bars:
+            p.wait(5)
+
 print("ok")
