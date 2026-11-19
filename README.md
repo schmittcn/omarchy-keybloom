@@ -230,9 +230,10 @@ the same object, one product id each.
   shows up in your audio mixer like any recording app.
 - No network access, no root, nothing installed outside the plugin folder. The udev rule is a step you do yourself.
 - It reads `~/.local/state/omarchy/current/theme/keyboard.rgb` (size-limited, no symlinks) and the hidraw entries in
-  `/sys/class/hidraw/`. It writes no files of its own: your settings go into Keybloom's entry in
-  `~/.config/omarchy/shell.json` through the shell's plugin API, which lets a plugin change only its own entry. Every
-  setting read back from there is checked; a malformed one is ignored.
+  `/sys/class/hidraw/`. Your settings go into Keybloom's entry in `~/.config/omarchy/shell.json` through the shell's
+  plugin API, which lets a plugin change only its own entry. Every setting read back from there is checked; a malformed
+  one is ignored. Its only files of its own are `keybloom.lock` and `keybloom.sock` in `$XDG_RUNTIME_DIR` (private to
+  you, gone at logout), so the bars on several monitors share one keyboard.
 - It sends the keyboard only lighting commands: get, set and save on the RGB matrix channel. Keymaps and macros are
   never touched.
 - The udev rule lets every program running as you talk to the keyboard, including VIA's keymap and macro commands
