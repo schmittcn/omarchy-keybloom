@@ -261,6 +261,10 @@ Your settings go with the widget's entry in `shell.json`. What stays behind:
 ## How it works
 
 `Panel.qml` is the bar icon and popup. It starts `keybloom.py serve`, which runs for as long as the widget is loaded.
+With several monitors, Omarchy shows a bar on each, so there is one helper per bar, but only one of them talks to
+the keyboard: the first takes a lock in `$XDG_RUNTIME_DIR` and the others pass their bar's commands to it over a
+private socket there. Every bar gets the same status, so they all show the same keyboard and write the same
+settings. When that bar goes away (a monitor unplugged), another helper takes over.
 The popup hands it your settings from `shell.json` first (and again whenever the entry changes); the helper touches
 the keyboard only after that, reports the settings back whenever they change, and the popup writes them to the entry.
 The helper holds the keyboard open, notices at once when the keyboard is unplugged (or the computer

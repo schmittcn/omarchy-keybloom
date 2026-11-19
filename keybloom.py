@@ -3,7 +3,14 @@
 
 `keybloom.py serve` runs for as long as the widget is loaded. It reads one JSON command per line on
 stdin and answers every command with one JSON status line on stdout. It touches the keyboard only
-after the first command, init:
+after the first command, init.
+
+Omarchy runs one bar per monitor, so there is one `serve` per monitor. Only one of them, the leader, drives
+the keyboard: it holds $XDG_RUNTIME_DIR/keybloom.lock and listens on keybloom.sock. The others follow it: they
+pass their bar's commands on and hand back its status, which goes to every bar alike. When the leader's bar
+goes away (a monitor unplugged), a follower takes the lead with the settings as they stood.
+
+Commands:
 
   {"init": {"settings": {...}, "boards": {...}}}
                                your settings and keyboards from Keybloom's shell.json entry (again whenever
@@ -32,6 +39,7 @@ Your settings live inline on Keybloom's entry in ~/.config/omarchy/shell.json, a
 ask. The popup writes them there (status "settings"); this helper writes no files.
 """
 import colorsys
+import fcntl
 import glob
 import json
 import os
@@ -39,6 +47,7 @@ import pwd
 import random
 import re
 import select
+import socket
 import stat
 import subprocess
 import sys
@@ -341,6 +350,11 @@ class Keyboard:
         self.fd, self.dev = None, ""
 
     def xfer(self, payload):
+        """Send one VIA command and return its reply. hidraw hands every reply to every open handle (VIA open at
+        the same time, another program), so a reply counts as ours only when it echoes our request: the command
+        id, and for the channel commands the channel and value id too. A get of the brightness must never take
+        the reply to someone else's get of the effect."""
+        echo = bytes(payload[:3] if payload[0] in (CMD_SET, CMD_GET, CMD_SAVE) else payload[:1])
         self.drain()  # a stale reply (e.g. to VIA open at the same time) must not pass for ours
         os.write(self.fd, b"\x00" + bytes(payload) + bytes(32 - len(payload)))
         deadline = time.monotonic() + 1.0
@@ -351,7 +365,7 @@ class Keyboard:
             reply = os.read(self.fd, 32)
             if not reply:
                 raise OSError("keyboard gone")
-            if reply[:1] == bytes(payload[:1]):  # VIA echoes the command id
+            if reply[:len(echo)] == echo:
                 return reply
             if reply[0] == CMD_UNHANDLED and reply[1:3] == bytes(payload[1:3]):  # QMK keeps the rest of the request
                 raise Unsupported(f"command {payload[0]:#04x} not supported")
@@ -498,6 +512,10 @@ class Helper:
         """Settings and keyboards from the shell.json entry. The first time, an empty entry means: take over
         what the keyboard shows."""
         data = data if isinstance(data, dict) else {}
+        if self.ready and data.get("settings") == self.saved and parse_boards(data.get("boards")) == self.user_boards:
+            # what shell.json already holds: every bar (one per monitor) hands it over again after each write.
+            # Nothing changed, so auto cycle keeps its step and its wait.
+            return
         first = not self.ready
         state, found = parse_settings(data.get("settings"), None if first else self.state)
         if found:
@@ -720,14 +738,95 @@ class Helper:
                 "settings": self.saved}
 
 
-def serve():
-    helper = Helper()
-    buf = b""
+class Lines:
+    """One JSON command per line from a file descriptor; a runaway line without newline is dropped, not buffered
+    forever."""
+    def __init__(self, fd):
+        self.fd, self.buf = fd, b""
+
+    def read(self):
+        """The complete commands that have arrived; None when the other side closed."""
+        chunk = os.read(self.fd, 4096)
+        if not chunk:
+            return None
+        self.buf += chunk
+        cmds = []
+        while b"\n" in self.buf:
+            line, self.buf = self.buf.split(b"\n", 1)
+            try:
+                cmd = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(cmd, dict):
+                cmds.append(cmd)
+        self.buf = self.buf[-65536:]
+        return cmds
+
+
+def runtime_paths():
+    """(lock, socket) in $XDG_RUNTIME_DIR, private to you; None without one (then every helper runs alone)."""
+    run = os.environ.get("XDG_RUNTIME_DIR", "")
     try:
+        st = os.stat(run) if run else None
+    except OSError:
+        st = None
+    if not st or not stat.S_ISDIR(st.st_mode) or st.st_uid != os.getuid() or st.st_mode & 0o077:
+        return None
+    return os.path.join(run, "keybloom.lock"), os.path.join(run, "keybloom.sock")
+
+
+def take_lead(lock_path, sock_path):
+    """Become the one helper that drives the keyboard: (lock fd, listening socket), or None when another
+    helper already does. Omarchy runs one bar per monitor, and each one starts `keybloom.py serve`; were they
+    all to talk to the keyboard, they would fight over it. So the first holds the lock and the keyboard, the
+    others pass their bar's commands to it over the socket and hand back its status."""
+    fd = os.open(lock_path, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        os.close(fd)
+        return None
+    try:
+        os.unlink(sock_path)  # left over from a helper that died: the lock says nobody serves it
+    except FileNotFoundError:
+        pass
+    srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM | socket.SOCK_CLOEXEC)
+    old = os.umask(0o177)
+    try:
+        srv.bind(sock_path)
+    finally:
+        os.umask(old)
+    srv.listen(16)
+    return fd, srv
+
+
+def lead(lock, srv, replay=()):
+    """Drive the keyboard. Commands come from our own bar (stdin) and from the other bars' helpers (the socket);
+    every status goes to all of them, so every bar shows the same keyboard and writes the same settings."""
+    helper = Helper()
+    peers = {}  # socket -> Lines
+    stdin = Lines(sys.stdin.fileno())
+
+    def say():
+        line = (json.dumps(helper.status()) + "\n").encode()
+        sys.stdout.buffer.write(line)
+        sys.stdout.flush()
+        for peer in list(peers):
+            try:
+                peer.sendall(line)
+            except OSError:  # gone, or stuck for a second: it reconnects (or takes the lead) on its own
+                del peers[peer]
+                peer.close()
+
+    try:
+        for cmd in replay:  # we took over from a helper that went away: its bar's last settings
+            helper.handle(cmd)
+        if replay:
+            say()
         while True:
             # the keyboard's fd is watched too: an unplug wakes us at once, so a replugged keyboard gets your
             # settings back even when nothing animates
-            fds = [sys.stdin] + [fd for fd in (helper.music.fd, helper.kb.fd) if fd is not None]
+            fds = [sys.stdin] + ([srv] if srv else []) + list(peers) + [fd for fd in (helper.music.fd, helper.kb.fd) if fd is not None]
             ready, _, _ = select.select(fds, [], [], helper.wait(time.monotonic()))
             if helper.music.proc and helper.music.fd in ready:
                 helper.music.feed()
@@ -739,31 +838,117 @@ def serve():
                     helper.kb.close()
                     helper.have = {}
             if helper.cycle_tick(time.monotonic()):
-                print(json.dumps(helper.status()), flush=True)
-            if sys.stdin not in ready:
+                say()
+            if srv and srv in ready:
+                try:
+                    peer, _ = srv.accept()
+                    peer.settimeout(1.0)
+                    peers[peer] = Lines(peer.fileno())
+                except OSError:
+                    pass
+            cmds = []
+            for src in [s for s in ready if s in peers]:
+                try:
+                    got = peers[src].read()
+                except OSError:
+                    got = None
+                if got is None:
+                    del peers[src]
+                    src.close()
+                else:
+                    cmds += got
+            if sys.stdin in ready:
+                got = stdin.read()
+                if got is None:
+                    return  # the shell closed us (our bar went away): another helper takes the lead
+                cmds += got
+            if not cmds:
                 if not helper.ready:
                     continue
                 if helper.kb.fd is None or helper.animated():
                     helper.sync()  # unplugged: look for it every 2 s; animated: next frame
                 if (helper.kb.fd is not None) != was:
-                    print(json.dumps(helper.status()), flush=True)
+                    say()
                 continue
-            chunk = os.read(sys.stdin.fileno(), 4096)
-            if not chunk:
-                return  # the shell closed us
-            buf += chunk
-            while b"\n" in buf:
-                line, buf = buf.split(b"\n", 1)
-                try:
-                    cmd = json.loads(line)
-                except ValueError:
-                    continue
-                if isinstance(cmd, dict):
-                    helper.handle(cmd)
-                    print(json.dumps(helper.status()), flush=True)
-            buf = buf[-65536:]  # a runaway line without newline is dropped, not buffered forever
+            for cmd in cmds:
+                helper.handle(cmd)
+                say()
     finally:
         helper.music.stop()
+        helper.kb.close()
+        for peer in peers:
+            peer.close()
+        if srv:
+            srv.close()
+        if lock is not None:
+            os.close(lock)  # unlocks: the next helper may take the lead
+
+
+def follow(sock):
+    """Pass our bar's commands to the leading helper and its status back. Returns the commands to replay when
+    the leader went away (we may take the lead next), or None when our own bar closed us."""
+    remember = {}  # what a new leader needs: the settings as they stand and whether you are idle
+    stdin = Lines(sys.stdin.fileno())
+    buf = b""
+    with sock:
+        while True:
+            ready, _, _ = select.select([sys.stdin, sock], [], [])
+            if sock in ready:
+                try:
+                    chunk = sock.recv(65536)
+                except OSError:
+                    chunk = b""
+                if not chunk:
+                    return [remember[k] for k in ("init", "idle") if k in remember]
+                buf += chunk
+                if b"\n" in buf:
+                    out, buf = buf.rsplit(b"\n", 1)
+                    sys.stdout.buffer.write(out + b"\n")
+                    sys.stdout.flush()
+                    try:  # the leader's latest settings: newer than the init our bar sent (other bars changed them)
+                        settings = json.loads(out.rsplit(b"\n", 1)[-1]).get("settings")
+                        if isinstance(settings, dict) and settings:
+                            remember["init"] = {"init": {"settings": settings, "boards": settings.get("boards")}}
+                    except (ValueError, AttributeError):
+                        pass
+                buf = buf[-65536:]
+            if sys.stdin in ready:
+                cmds = stdin.read()
+                if cmds is None:
+                    return None
+                for cmd in cmds:
+                    for k in ("init", "idle"):
+                        if k in cmd:
+                            remember[k] = {k: cmd[k]}
+                    try:
+                        sock.sendall((json.dumps(cmd) + "\n").encode())
+                    except OSError:
+                        pass  # the leader is going away: the next recv says so
+
+
+def serve():
+    paths = runtime_paths()
+    if paths is None:
+        return lead(None, None)  # no private runtime dir: every helper on its own, as before Keybloom 0.1.1
+    replay = []
+    while True:
+        try:
+            led = take_lead(*paths)
+        except OSError:
+            return lead(None, None, replay)
+        if led:
+            return lead(*led, replay)
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM | socket.SOCK_CLOEXEC)
+        try:
+            sock.connect(paths[1])
+        except OSError:
+            sock.close()
+            time.sleep(0.1)  # the leader is just starting (or just went away): try again
+            continue
+        replay = follow(sock)
+        if replay is None:
+            return
+        time.sleep(random.uniform(0, 0.2))  # the leader went away: one of us takes the lead, the rest follow it
 
 
 if __name__ == "__main__":
