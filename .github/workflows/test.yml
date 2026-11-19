@@ -1,0 +1,25 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"  # Omarchy is Arch: always the current Python
+      - name: Helper tests (fake keyboard, no hardware)
+        run: python3 -I test_keybloom.py
+      - name: effects.json and manifest.json parse
+        run: python3 -I -c "import json; [json.load(open(f)) for f in ('effects.json', 'manifest.json')]"
+      - name: Scripts compile
+        run: python3 -I -m py_compile keybloom.py tools/gen_effects.py
