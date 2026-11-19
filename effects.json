@@ -49,7 +49,9 @@
   "starlight": "Starlight",
   "starlight_dual_sat": "Starlight dual sat",
   "starlight_dual_hue": "Starlight dual hue",
-  "riverflow": "Riverflow"
+  "riverflow": "Riverflow",
+  "per_key_rgb": "Per-key RGB",
+  "mixed_rgb": "Mixed RGB"
  },
  "boards": {
   "0100": {
@@ -2047,7 +2049,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0281": {
@@ -2641,7 +2645,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0320": {
@@ -2830,7 +2836,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0330": {
@@ -3019,7 +3027,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0340": {
@@ -3316,7 +3326,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0368": {
@@ -3586,7 +3598,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0410": {
@@ -3640,11 +3654,67 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0433": {
    "model": "C3_PRO ANSI RGB",
+   "effects": [
+    "solid_color",
+    "breathing",
+    "band_spiral_val",
+    "cycle_all",
+    "cycle_left_right",
+    "cycle_up_down",
+    "rainbow_moving_chevron",
+    "cycle_out_in",
+    "cycle_out_in_dual",
+    "cycle_pinwheel",
+    "cycle_spiral",
+    "dual_beacon",
+    "rainbow_beacon",
+    "jellybean_raindrops",
+    "pixel_rain",
+    "typing_heatmap",
+    "digital_rain",
+    "solid_reactive_simple",
+    "solid_reactive_multiwide",
+    "solid_reactive_multinexus",
+    "splash",
+    "solid_splash"
+   ]
+  },
+  "0434": {
+   "model": "C3_PRO ISO RGB_PID0434",
+   "effects": [
+    "solid_color",
+    "breathing",
+    "band_spiral_val",
+    "cycle_all",
+    "cycle_left_right",
+    "cycle_up_down",
+    "rainbow_moving_chevron",
+    "cycle_out_in",
+    "cycle_out_in_dual",
+    "cycle_pinwheel",
+    "cycle_spiral",
+    "dual_beacon",
+    "rainbow_beacon",
+    "jellybean_raindrops",
+    "pixel_rain",
+    "typing_heatmap",
+    "digital_rain",
+    "solid_reactive_simple",
+    "solid_reactive_multiwide",
+    "solid_reactive_multinexus",
+    "splash",
+    "solid_splash"
+   ]
+  },
+  "0436": {
+   "model": "C3_PRO JIS RGB",
    "effects": [
     "solid_color",
     "breathing",
@@ -3694,7 +3764,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0510": {
@@ -3775,7 +3847,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "051e": {
@@ -3802,7 +3876,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0520": {
@@ -3856,7 +3932,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0522": {
@@ -3883,7 +3961,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0526": {
@@ -3937,7 +4017,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0530": {
@@ -3964,7 +4046,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0531": {
@@ -3991,11 +4075,42 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0532": {
    "model": "C3_PRO_8K JIS",
+   "effects": [
+    "solid_color",
+    "breathing",
+    "band_spiral_val",
+    "cycle_all",
+    "cycle_left_right",
+    "cycle_up_down",
+    "rainbow_moving_chevron",
+    "cycle_out_in",
+    "cycle_out_in_dual",
+    "cycle_pinwheel",
+    "cycle_spiral",
+    "dual_beacon",
+    "rainbow_beacon",
+    "jellybean_raindrops",
+    "pixel_rain",
+    "typing_heatmap",
+    "digital_rain",
+    "solid_reactive_simple",
+    "solid_reactive_multiwide",
+    "solid_reactive_multinexus",
+    "splash",
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
+   ]
+  },
+  "0535": {
+   "model": "C3_PRO ISO RGB_PID0535",
    "effects": [
     "solid_color",
     "breathing",
@@ -4666,7 +4781,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0810": {
@@ -4774,7 +4891,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0821": {
@@ -4801,7 +4920,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0822": {
@@ -4855,7 +4976,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0831": {
@@ -4882,7 +5005,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0832": {
@@ -4936,7 +5061,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0851": {
@@ -4963,7 +5090,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0852": {
@@ -4990,7 +5119,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0860": {
@@ -5017,7 +5148,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0861": {
@@ -5044,7 +5177,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0862": {
@@ -5098,7 +5233,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "08a0": {
@@ -5125,7 +5262,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "08a1": {
@@ -5152,7 +5291,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "08b0": {
@@ -5233,7 +5374,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "08c4": {
@@ -5260,7 +5403,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "08d0": {
@@ -5287,7 +5432,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "08d2": {
@@ -5314,7 +5461,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "08e0": {
@@ -5341,7 +5490,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "08f0": {
@@ -5368,7 +5519,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0913": {
@@ -5395,7 +5548,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0914": {
@@ -5422,7 +5577,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0915": {
@@ -5449,7 +5606,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0920": {
@@ -5476,7 +5635,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0921": {
@@ -5503,7 +5664,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0922": {
@@ -5530,7 +5693,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0933": {
@@ -5557,7 +5722,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0934": {
@@ -5584,7 +5751,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0935": {
@@ -5611,7 +5780,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0940": {
@@ -5638,7 +5809,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0941": {
@@ -5692,7 +5865,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0951": {
@@ -5719,7 +5894,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0952": {
@@ -5746,7 +5923,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0960": {
@@ -5773,7 +5952,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0961": {
@@ -5800,7 +5981,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0962": {
@@ -5827,7 +6010,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0980": {
@@ -5854,7 +6039,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0981": {
@@ -5908,7 +6095,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "09a1": {
@@ -5935,7 +6124,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a00": {
@@ -5962,7 +6153,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a01": {
@@ -5989,7 +6182,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a02": {
@@ -6043,7 +6238,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a10": {
@@ -6070,7 +6267,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a11": {
@@ -6097,7 +6296,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a12": {
@@ -6151,7 +6352,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a21": {
@@ -6178,7 +6381,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a22": {
@@ -6205,7 +6410,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a30": {
@@ -6232,7 +6439,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a31": {
@@ -6259,7 +6468,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a32": {
@@ -6286,7 +6497,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a40": {
@@ -6313,7 +6526,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a41": {
@@ -6340,7 +6555,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a42": {
@@ -6367,7 +6584,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a50": {
@@ -6394,7 +6613,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a51": {
@@ -6421,7 +6642,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a52": {
@@ -6448,7 +6671,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a58": {
@@ -6475,7 +6700,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a70": {
@@ -6502,7 +6729,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a71": {
@@ -6529,7 +6758,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a72": {
@@ -6583,7 +6814,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a80": {
@@ -6610,7 +6843,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0a81": {
@@ -6691,7 +6926,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0aa0": {
@@ -6718,7 +6955,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0aa1": {
@@ -6799,7 +7038,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0ab3": {
@@ -6826,7 +7067,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0ab4": {
@@ -6853,7 +7096,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0ab5": {
@@ -6880,7 +7125,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0ad0": {
@@ -6907,7 +7154,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0ad1": {
@@ -6934,7 +7183,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0ad2": {
@@ -6961,7 +7212,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0af0": {
@@ -6988,7 +7241,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0af1": {
@@ -7015,7 +7270,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b00": {
@@ -7042,7 +7299,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b10": {
@@ -7069,7 +7328,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b11": {
@@ -7096,7 +7357,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b12": {
@@ -7123,7 +7386,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b20": {
@@ -7150,7 +7415,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b30": {
@@ -7177,7 +7444,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b31": {
@@ -7204,7 +7473,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b32": {
@@ -7231,7 +7502,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b40": {
@@ -7258,7 +7531,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b50": {
@@ -7285,7 +7560,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b51": {
@@ -7312,7 +7589,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b52": {
@@ -7339,7 +7618,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b60": {
@@ -7366,7 +7647,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b61": {
@@ -7393,7 +7676,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0b62": {
@@ -7420,7 +7705,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0bc0": {
@@ -7447,7 +7734,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0bc1": {
@@ -7474,7 +7763,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d10": {
@@ -7501,7 +7792,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d11": {
@@ -7528,7 +7821,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d12": {
@@ -7555,7 +7850,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d20": {
@@ -7582,7 +7879,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d21": {
@@ -7609,7 +7908,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d22": {
@@ -7636,7 +7937,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d30": {
@@ -7663,7 +7966,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d31": {
@@ -7690,7 +7995,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d32": {
@@ -7717,7 +8024,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d40": {
@@ -7744,7 +8053,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d41": {
@@ -7771,7 +8082,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0d42": {
@@ -7825,7 +8138,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0e21": {
@@ -7852,7 +8167,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0e22": {
@@ -7879,7 +8196,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0e40": {
@@ -7906,7 +8225,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0e41": {
@@ -7933,7 +8254,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0e42": {
@@ -7960,7 +8283,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0e60": {
@@ -7987,7 +8312,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0e80": {
@@ -8014,7 +8341,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0e81": {
@@ -8041,7 +8370,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0e82": {
@@ -8068,7 +8399,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0ea0": {
@@ -8095,7 +8428,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0ea1": {
@@ -8122,7 +8457,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0f10": {
@@ -8149,7 +8486,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0f30": {
@@ -8176,7 +8515,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0f31": {
@@ -8203,7 +8544,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0f60": {
@@ -8230,7 +8573,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "0f61": {
@@ -8257,7 +8602,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "1430": {
@@ -8284,7 +8631,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "1432": {
@@ -8311,7 +8660,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "1433": {
@@ -8338,7 +8689,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "1450": {
@@ -8365,7 +8718,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "1460": {
@@ -8392,7 +8747,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "1463": {
@@ -8419,7 +8776,9 @@
     "solid_reactive_multiwide",
     "solid_reactive_multinexus",
     "splash",
-    "solid_splash"
+    "solid_splash",
+    "per_key_rgb",
+    "mixed_rgb"
    ]
   },
   "a612": {
