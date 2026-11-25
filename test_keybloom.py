@@ -207,6 +207,12 @@ assert names[18] == "Reactive" and typing == [16, 18, 19, 20, 21, 22] and color 
 names, typing, color, model, note = kg.effect_list("0102", 30)
 assert names[18] == "Effect 18" and typing == [] and model == "" and "has 29" in note, "other firmware: numbers only"
 assert kg.effect_list("ffff", 5)[0] == ["Off", "Effect 1", "Effect 2", "Effect 3", "Effect 4"], "unknown model"
+# Keychron's builds add per-key and mixed RGB last; upstream builds of the same board do not
+names, typing, color, model, note = kg.effect_list("0102", 25)
+assert names[-2:] == ["Per-key RGB", "Mixed RGB"] and names[18] == "Reactive" and 24 not in color, "Q1, Keychron build"
+names = kg.effect_list("0e21", 25)[0]
+assert names[-1] == "Mixed RGB" and kg.effect_list("0e21", 23)[0][-1] == "Solid splash", "K2 HE, either build"
+assert kg.effect_list("0102", 24)[3] == "", "one extra effect is other firmware, not Keychron's"
 
 # your own keyboards (the "boards" setting): QMK names get labels, anything else shows as written
 mine = kg.parse_boards({"FFFF": {"model": "My board", "effects": ["solid_color", "solid_splash", "Fireworks"]},

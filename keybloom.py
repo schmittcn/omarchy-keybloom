@@ -58,6 +58,8 @@ from array import array
 # each Keychron's firmware enables, in the order the firmware numbers them (0 is "off"). Used only when the
 # keyboard reports the same number of effects; otherwise they show as "Effect N".
 EFFECTS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "effects.json")
+# Keychron's own effects, after QMK's in Keychron's builds (KEYCHRON_RGB_ENABLE)
+KEYCHRON_KEYS = ["per_key_rgb", "mixed_rgb"]
 # effects that light up on keypresses: the "while typing" ones
 TYPING_KEYS = {"typing_heatmap", "solid_reactive_simple", "solid_reactive", "solid_reactive_wide",
                "solid_reactive_multiwide", "solid_reactive_cross", "solid_reactive_multicross",
@@ -280,10 +282,18 @@ def effect_list(pid, count, user_boards=None):
     if pid in (user_boards or {}):
         boards[pid], source = user_boards[pid], "Your boards setting"
     board = boards.get(pid)
-    if board and len(board["effects"]) + 1 == count:
-        keys = [None] + board["effects"]
+    fits = []
+    if board:
+        # Keychron's own effects come last and only in Keychron's builds: the same board has them or not
+        # depending on which firmware is flashed, so the list fits either way
+        base = board["effects"]
+        if base[-len(KEYCHRON_KEYS):] == KEYCHRON_KEYS:
+            base = base[:-len(KEYCHRON_KEYS)]
+        fits = [e for e in (board["effects"], base, base + KEYCHRON_KEYS) if len(e) + 1 == count]
+    if fits:
+        keys = [None] + fits[0]
         # QMK effect names get a label and count as typing/color effects; anything else shows as written
-        return (["Off"] + [names.get(k, k) for k in board["effects"]],
+        return (["Off"] + [names.get(k, k) for k in fits[0]],
                 [i for i, k in enumerate(keys) if k in TYPING_KEYS],
                 [i for i, k in enumerate(keys) if k in COLOR_KEYS], board["model"], note)
     if board:

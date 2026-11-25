@@ -178,8 +178,10 @@ lines. Tested on a wired **Q1 v1 ISO (3434:0102)**. Keyboards with white-only ba
 - **Effect names.** Each model numbers its effects differently, depending on which ones its firmware includes. When
   the keyboard connects, Keybloom asks how many effects it has (it requests effect 255, which the firmware turns into
   its last one, reads that back and puts your effect back; RAM only). It then names them from `effects.json`, a table
-  of 311 Keychron RGB keyboards (by USB product id) from upstream QMK and Keychron's own QMK fork: the Q, V, K, C,
-  Pro, Max and HE lines, among others. The popup's footer shows which model it found.
+  of 314 Keychron RGB keyboards (by USB product id) from upstream QMK and Keychron's own QMK fork: the Q, V, K, C,
+  Pro, Max and HE lines, among others. Keychron's own builds add two effects at the end (Per-key RGB, Mixed RGB)
+  that upstream builds of the same board lack; either way the names fit. The popup's footer shows which model it
+  found.
 - **Other models and firmware.** A keyboard that is not in the table, or whose firmware has a different number of
   effects than the table says (e.g. a newer firmware), shows its effects as "Effect 1", "Effect 2", …. Everything
   works, but Keybloom cannot tell which effects react to typing or use the color, so Music always pulses the
