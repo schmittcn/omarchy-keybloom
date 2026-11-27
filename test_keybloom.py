@@ -365,7 +365,7 @@ with tempfile.TemporaryDirectory() as run:
         tell(bars[1], {"set": {"idleSec": 30}})
         for p in bars:
             hear(p, lambda st: st["state"]["idleSec"] == 30 and st["state"]["speed"] == 77)  # one state, not three
-        tell(bars[2], {"init": {"settings": {"speed": 77, "idleSec": 30}}})  # bar 3 rereads shell.json
+        tell(bars[2], {"init": {"settings": {"speed": 77, "idleSec": 30, "boards": mine}, "boards": mine}})  # bar 3 rereads shell.json
         bars[0].stdin.close()  # the leader's bar goes away (monitor unplugged)
         bars[0].wait(5)
         time.sleep(0.5)
