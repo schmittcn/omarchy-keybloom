@@ -381,4 +381,85 @@ with tempfile.TemporaryDirectory() as run:
         for p in bars:
             p.wait(5)
 
+# commands from the bar and the other helpers: one JSON object per line, anything else dropped
+r, w = os.pipe()
+lines = kg.Lines(r)
+os.write(w, b'{"a": 1}\nnot json\n[1, 2]\n{"b"')
+assert lines.read() == [{"a": 1}], "bad JSON and non-objects are dropped"
+os.write(w, b': 2}\n')
+assert lines.read() == [{"b": 2}], "a line split across reads is joined"
+for _ in range(40):
+    os.write(w, b"x" * 4096); lines.read()
+assert len(lines.buf) <= 65536, "a runaway line without newline is capped, not buffered forever"
+os.close(w)
+assert lines.read() is None, "closed: None"
+os.close(r)
+
+# the lock and socket live only in a runtime dir that is yours alone; the socket is yours alone too
+with tempfile.TemporaryDirectory() as run:
+    env = os.environ.get("XDG_RUNTIME_DIR")
+    try:
+        os.environ["XDG_RUNTIME_DIR"] = run
+        os.chmod(run, 0o755); assert kg.runtime_paths() is None, "others can read the dir: run alone"
+        os.environ["XDG_RUNTIME_DIR"] = ""; assert kg.runtime_paths() is None
+        os.environ["XDG_RUNTIME_DIR"] = run; os.chmod(run, 0o700)
+        lock_path, sock_path = kg.runtime_paths()
+        open(sock_path, "w").close()  # left over from a helper that died
+        first = kg.take_lead(lock_path, sock_path)
+        assert first and os.stat(sock_path).st_mode & 0o777 == 0o600, "the socket is private"
+        assert kg.take_lead(lock_path, sock_path) is None, "one leader at a time"
+        os.close(first[0]); first[1].close()
+        again = kg.take_lead(lock_path, sock_path); assert again, "the lock is free again once the leader is gone"
+        os.close(again[0]); again[1].close()
+    finally:
+        if env is None:
+            os.environ.pop("XDG_RUNTIME_DIR", None)
+        else:
+            os.environ["XDG_RUNTIME_DIR"] = env
+
+# the theme's keyboard.rgb: one small regular file of yours holding RRGGBB, nothing else is read
+import types
+with tempfile.TemporaryDirectory() as home:
+    real_pwd = kg.pwd
+    kg.pwd = types.SimpleNamespace(getpwuid=lambda uid: types.SimpleNamespace(pw_dir=home))
+    try:
+        assert kg.read_theme_color() is None, "no theme file: None"
+        d = os.path.join(home, ".local/state/omarchy/current/theme"); os.makedirs(d)
+        path = os.path.join(d, "keyboard.rgb")
+        for content, want in ((b"#A0B1C2\n", "a0b1c2"), (b"zzzzzz", ValueError), (b"a" * 65, PermissionError)):
+            open(path, "wb").write(content)
+            try:
+                got = kg.read_theme_color()
+            except (ValueError, PermissionError) as e:
+                got = type(e)
+            assert got == want, (content, got)
+        os.unlink(path); open(os.path.join(home, "other"), "w").write("ffffff"); os.symlink(os.path.join(home, "other"), path)
+        try:
+            kg.read_theme_color(); assert False, "a symlink is not followed"
+        except OSError:
+            pass
+    finally:
+        kg.pwd = real_pwd
+
+# theme colors on LEDs: grays untouched, colors full, green-cyan pulled back to green
+assert kg.vivid("808080") == "808080" and kg.vivid("ff0000") == "ff0000"
+assert kg.vivid("4080c0")[4:] == "ff", "a color goes to full value"
+import colorsys
+assert colorsys.rgb_to_hsv(*(int(kg.vivid("00ffc0")[i:i + 2], 16) / 255 for i in (0, 2, 4)))[0] * 360 < 140
+
+# music: loudness from 16-bit samples; a sample split across reads is kept, the end of pw-record stops it
+import array
+r, w = os.pipe(); os.set_blocking(r, False)
+m = kg.Music(); m.proc = types.SimpleNamespace(stdout=types.SimpleNamespace(fileno=lambda: r))
+os.write(w, array.array("h", [0] * 100).tobytes()); m.feed()
+assert m.level == 0.0 and m.sound_at == 0.0, "silence: nothing playing"
+os.write(w, array.array("h", [8000, -8000] * 200).tobytes() + b"\x01"); m.feed()
+assert m.level > 0.5 and m.sound_at > 0 and m.rest == b"\x01", "loud: level up, odd byte kept"
+os.write(w, array.array("h", [0] * 400).tobytes()); m.feed()
+assert 0 < m.level < 1.0, "quiet again: the level falls off, not at once"
+m.stop = lambda: setattr(m, "proc", None)
+os.close(w); m.feed()
+assert m.proc is None and m.error == "pw-record stopped"
+os.close(r)
+
 print("ok")
