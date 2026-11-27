@@ -353,10 +353,11 @@ def hear(p, want, timeout=5.0):
 with tempfile.TemporaryDirectory() as run:
     os.chmod(run, 0o700)
     bars = [start(run) for _ in range(3)]
+    mine = {"0102": {"model": "My board", "effects": ["Off", "Mine"]}}  # your boards setting
     try:
         for p in bars:
             time.sleep(0.2)
-            tell(p, {"init": {"settings": {"speed": 100, "idleSec": 60}}})
+            tell(p, {"init": {"settings": {"speed": 100, "idleSec": 60, "boards": mine}, "boards": mine}})
             hear(p, lambda st: st["state"]["speed"] == 100)
         tell(bars[2], {"set": {"speed": 77}})
         for p in bars:
@@ -370,7 +371,8 @@ with tempfile.TemporaryDirectory() as run:
         time.sleep(0.5)
         tell(bars[1], {"set": {"speed": 12}})
         for p in bars[1:]:
-            hear(p, lambda st: st["state"]["speed"] == 12 and st["state"]["idleSec"] == 30)  # a follower took the lead
+            hear(p, lambda st: st["state"]["speed"] == 12 and st["state"]["idleSec"] == 30  # a follower took the lead
+                 and st["settings"].get("boards") == mine)  # and kept your boards
         assert all(p.poll() is None for p in bars[1:])
     finally:
         for p in bars:
